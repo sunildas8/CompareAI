@@ -7,8 +7,9 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.post('/use-graph', async (req, res) => {
-    await useGraph("write an factorial function in javascript");
+app.post('/', async (req, res) => {
+   const result = await useGraph("write an factorial function in javascript");
+   res.json(result);
 });
 
 export default app;
