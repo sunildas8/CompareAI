@@ -2,6 +2,7 @@ import express from 'express';
 import runGraph from './services/graph.ai.service.js'
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { getComparisons, saveComparison } from './services/comparisons.service.js';
 
 dotenv.config();
 
@@ -17,9 +18,15 @@ app.get('/', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
+app.get('/comparisons', async (req, res) => {
+    const comparisons = await getComparisons();
+    res.status(200).json({ success: true, comparisons });
+});
+
 app.post('/invoke', async (req, res) => {
     const { input } = req.body;
     const result = await runGraph(input);
+    await saveComparison(input, result);
     res.status(200).json({
         message: 'Graph AI invoked successfully',
         success: true,
