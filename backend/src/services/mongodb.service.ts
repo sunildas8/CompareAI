@@ -1,36 +1,42 @@
-import dns from 'node:dns';
-import { MongoClient, type Db } from 'mongodb';
-import config from '../config/config.js';
+import dns from 'dns';
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+dns.setDefaultResultOrder("ipv4first");
 
-let database: Db | undefined;
+import mongoose from 'mongoose';
 
-export const connectToDatabase = async (): Promise<Db> => {
-    if (database) {
-        return database;
+let database: any = null;
+
+export const connectToDatabase = async () => {
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not configured');
     }
 
-    if (!config.MONGODB_URI) {
-        throw new Error('MONGODB_URI is not configured');
-    }
-
-    if (config.MONGODB_URI.startsWith('mongodb+srv://')) {
-        // Use IPv4 DNS resolvers when the local IPv6 resolver rejects SRV queries.
-        dns.setServers(['8.8.8.8', '1.1.1.1']);
-    }
-
-    const client = new MongoClient(config.MONGODB_URI);
-    await client.connect();
-    database = client.db(config.MONGODB_DB_NAME);
-    await database.command({ ping: 1 });
-    console.log(`Connected to MongoDB database "${config.MONGODB_DB_NAME}"`);
-
-    return database;
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      retryWrites: true,
+      w: 'majority',
+    });
+    
+    // Get the underlying MongoDB database instance from Mongoose
+    database = conn.connection.getClient().db(process.env.MONGODB_DB_NAME);
+    
+    console.log('✅ Database connected successfully');
+    return conn;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Database connection error: ${errorMessage}`);
+    process.exit(1);
+  }
 };
 
-export const getDatabase = (): Db => {
-    if (!database) {
-        throw new Error('MongoDB is not connected');
-    }
-
-    return database;
+export const getDatabase = () => {
+  if (!database) {
+    throw new Error('Database not connected. Call connectToDatabase() first.');
+  }
+  return database;
 };
+
+export default connectToDatabase;
