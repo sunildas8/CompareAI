@@ -15,7 +15,7 @@ export const getComparisons = async () => {
         .sort({ createdAt: -1 })
         .toArray();
 
-    return comparisons.map((comparison) => ({
+    return comparisons.map((comparison: any) => ({
         id: comparison._id.toString(),
         problem: comparison.problem,
         result: comparison.result,
