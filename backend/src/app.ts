@@ -9,7 +9,10 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: process.env.PORT,
+    origin: [
+        'http://localhost:5173',
+        'https://compare-judge-ai.vercel.app'
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
 }));
