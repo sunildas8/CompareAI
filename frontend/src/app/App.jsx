@@ -30,7 +30,7 @@ const App = () => {
   useEffect(() => {
     const loadComparisons = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/comparisons');
+        const response = await axios.get('https://compare-ai-backend.vercel.app/comparisons');
         const comparisons = response.data?.comparisons || [];
 
         setConversations(comparisons);
@@ -65,7 +65,7 @@ const App = () => {
     setSidebarOpen(false);
 
     try {
-      const response = await axios.post('http://localhost:3000/invoke', {
+      const response = await axios.post('https://compare-ai-backend.vercel.app/invoke', {
         input: message
       });
 
