@@ -16,7 +16,7 @@ const State = new StateSchema({
     })
 });
 
-const solutionNode: GraphNode<typeof State> = async (state: typeof State) => {
+const solutionNode: GraphNode<typeof State> = async (state: any) => {
 
     const [mistral_solution, cohere_solution] = await Promise.all([
         mistralModel.invoke(state.problem),
@@ -28,7 +28,7 @@ const solutionNode: GraphNode<typeof State> = async (state: typeof State) => {
     }
 }
 
-const judgeNode: GraphNode<typeof State> = async (state: typeof State) => {
+const judgeNode: GraphNode<typeof State> = async (state: any) => {
 
     const { problem, solution_1, solution_2 } = state;
     
